@@ -1,0 +1,64 @@
+# background config
+
+screen:
+  window_x: 1000
+  window_y: 700
+  full_screen: True
+  background_color: "#121212"
+
+
+screen_interval_sec: 30
+text_interval_sec: 15
+background_fade_speed: 10
+
+text:
+  bg_font: resources/LifeSavers-Regular.ttf
+  bg_font_size: 48
+  color: "#FFFFFF"
+  bg_color: "#333333"
+  bg_offset: 4
+  padding: 25
+
+text_msg_location: top-right
+
+date:
+  datetime_format: "%a %b %-d, %I:%M %p"
+  location: bottom-left
+
+# every 20 minutes
+weather_interval_sec: 1200
+#weather_api_key: get from openweathermap.org
+
+weather_list:
+  - location: 94598,us
+  - location: 85016,us
+
+
+# every 2 minutes, M-F during stock market hours
+stock_open_hour: 5
+stock_close_hour: 13
+stock_interval_sec: 120
+
+stock_list:
+ - name: Microsoft
+   symbol: MSFT
+ - name: DOW Jones
+   symbol: ^DJI
+ - name: S&P 500
+   symbol: ^SPX
+ - name: NASDAQ
+   symbol: ^IXIC
+# - name: Bitcoin
+#   symbbol: BTC-USD
+
+
+
+F1:
+  name: images 1
+  path: i1/*
+F2:
+  name: images 2
+  path: i2/*
+F3: 
+  name: images 3
+  path: i3/*
