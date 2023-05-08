@@ -3,6 +3,8 @@
 Pygame screen saver - rotate through a folder of images (.jpg, .png)
 images fade in every 30 seconds
 
+Run with `bg.py` 
+
 Shows current date & time
  - looks up weather using the weather api (you need your own key)
  - looks up stocks using yahoo finance api

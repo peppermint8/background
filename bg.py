@@ -4,14 +4,13 @@
 """
 Background screensaver
 - rotate through images in a folder, not subfolders
-- show weather, stock prices, computer info, time, ?
+- show weather, stock prices, computer info, time
 
 To do:
-- fade in/out - smaller images xpos is wrong
-- rotate through text_json list
-- space - doesn't reset image time
+- long text scrolling
 
-2023-05-xx - v 1.0.0
+
+2023-05-08 - v 1.0.0
 
 keys:
 X = next text 
@@ -24,7 +23,7 @@ import sys
 import datetime
 import os
 import yaml
-import glob
+#import glob
 import random
 import pygame
 from pygame.locals import *
@@ -40,11 +39,20 @@ VERSION = "1.0.0"
 
 
 def get_img_list(collection):
+    """get the files in the path"""
     img_path = config.get(collection, {}).get("path")
+
+    # use default (F1) if the path doesn't exist
     if not img_path:
         img_path = config.get("F1", {}).get("path")
 
-    img_list = glob.glob(os.path.join(img_path))
+    #img_list = glob.glob(os.path.join(img_path))
+
+    img_list = []
+    for root, dirs, files in os.walk(os.path.dirname(img_path)):
+        for img in files:
+            img_list.append(os.path.join(root, img))
+
     if not img_list:
         collection = "F1"
         img_list = get_img_list(collection) 
@@ -56,7 +64,7 @@ def get_img_list(collection):
 
 
 def init_screen(full_screen_flag):
-
+    """initalize screen"""
     pygame.init()
 
     # full screen
@@ -85,6 +93,7 @@ def init_screen(full_screen_flag):
 
 
 def background(screen, screen_x, screen_y):
+    """main program"""
 
     clock_tick = 15
     clock = pygame.time.Clock()
@@ -168,7 +177,7 @@ def background(screen, screen_x, screen_y):
     stock_close_hr = 13
 
     # long test - works
-    text_json['x'] = """Not dead which eternal lie, Stranger eons death may die. Drain you of your sanity. Face the thing that should not be!"""
+    #text_json['x'] = """Not dead which eternal lie, Stranger eons death may die. Drain you of your sanity. Face the thing that should not be!"""
 
 
     txt_key_list = list(text_json.keys())
@@ -190,12 +199,13 @@ def background(screen, screen_x, screen_y):
     redraw_flag = True
     done = False
 
+
     while not done:
             
 
         now = datetime.datetime.now()
 
-        if fade_in < 250 and fade_speed > 0:
+        if fade_in <= 255 and fade_speed > 0:
             fade_in += fade_speed
             fade_in = min(fade_in, 255)
             redraw_flag = True
@@ -247,18 +257,23 @@ def background(screen, screen_x, screen_y):
         if new_img_flag:
             screen_sec = now.timestamp() + screen_max_sec
             the_img = random.choice(img_list)
-            
-            if my_img:
-                old_img = my_img
-                # store old_img_x & y
-            my_img, img_x, img_y = scale_image(the_img, screen_x, screen_y)
-            
-            # reset new image timer
-            new_img_flag = False
-            redraw_flag = True
-            if fade_speed > 0:
-                fade_in = 0
+            if test_img(the_img):
 
+                
+                if my_img:
+                    old_img = my_img
+                    old_img_x = img_x
+                    old_img_y = img_y
+                    # store old_img_x & y
+                my_img, img_x, img_y = scale_image(the_img, screen_x, screen_y)
+                
+                # reset new image timer
+                new_img_flag = False
+                redraw_flag = True
+                if fade_speed > 0:
+                    fade_in = 0
+            else:
+                print("- {} is not a file".format(the_img))
         
         if redraw_flag:
 
@@ -266,9 +281,9 @@ def background(screen, screen_x, screen_y):
             
             if old_img and fade_speed > 0:
                 old_img.set_alpha(255 - fade_in)
-                bg.blit(old_img, (img_x, img_y)) # should be old img x&y
+                bg.blit(old_img, (old_img_x, old_img_y))
 
-            if fade_in < 255:
+            if fade_in <= 255:
                 my_img.set_alpha(fade_in)
             
             bg.blit(my_img, (img_x, img_y))
@@ -360,14 +375,3 @@ if __name__ == '__main__':
     
     sys.exit(0)
 
-"""
-https://github.com/public-apis/public-apis
-
-
-https://xkcd.com/info.0.json (current comic)
-
-    
-cpu: sensors -f -j coretemp-isa-0000
-load, users, disk free, memory used 
-    
-"""

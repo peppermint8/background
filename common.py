@@ -6,13 +6,13 @@ Common functions
 
 """
 
+import os
 import sys
-#import os
-#import glob
 import pygame
 import random
 
 def get_wh(iw, ih, max_x, max_y):
+    """scale image size"""
 
     new_w = iw 
     new_h = ih
@@ -20,7 +20,7 @@ def get_wh(iw, ih, max_x, max_y):
     w1 = new_w / max_x
     h1 = new_h / max_y
     
-    #print w1, h1
+    """
     if iw == 1920 and ih == 1200:
         new_w = max_x
         new_h = max_y
@@ -30,23 +30,19 @@ def get_wh(iw, ih, max_x, max_y):
     elif iw == 2048 and ih == 1163:
         new_w = max_x
         new_h = max_y
-    elif w1 > h1:
-        new_w = new_w / w1
-        new_h = new_h / w1
+    """
+    if w1 > h1:
+        new_w = new_w // w1
+        new_h = new_h // w1
     else:
-        new_w = new_w / h1
-        new_h = new_h / h1
-        
-    new_w = int(new_w)
-    new_h = int(new_h)
-    
-    #print "w = %s/%s   h = %s/%s" % (iw, new_w, ih, new_h)
+        new_w = new_w // h1
+        new_h = new_h // h1
     
     return new_w, new_h
 
 
-
 def convert_color(color_str):
+    """convert "#RRGGBB" to pygame color"""
     clr = (0, 0, 0)
     if not color_str:
         return get_rgb()
@@ -57,6 +53,19 @@ def convert_color(color_str):
     clr = pygame.Color(color_str)
 
     return clr
+
+def test_img(img_file):
+    """test if the file 'smells' like an image"""
+
+    test_flag = False
+
+    if os.path.isfile(img_file):
+        i = img_file.lower()
+        if i.endswith(".jpg") or i.endswith(".png") or i.endswith(".jpeg") or i.endswith(".bmp") or i.endswith(".gif"):
+            test_flag = True
+
+
+    return test_flag                
 
 
 def scale_image(img, max_x, max_y):
@@ -78,7 +87,7 @@ def scale_image(img, max_x, max_y):
 
     except pygame.error as e:
         print("image error: {}".format(e))
-        print("image: {}".format(the_img))
+        print("image: {}".format(img))
 
     return my_img, img_x, img_y
 

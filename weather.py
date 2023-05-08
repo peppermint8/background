@@ -78,10 +78,15 @@ class Weather():
 
 if __name__ == '__main__':
 
+    weather_api_key = ""
+    if len(sys.argv) > 1:
+        weather_api_key = sys.argv[1]
+
+
     zip_list = ["94598,us", "85016,us", "98602,us"]
     w_list = []
     for z in zip_list:
-        w = Weather(z)
+        w = Weather(z, weather_api_key)
         w_list.append(w)
 
     for w in w_list:
