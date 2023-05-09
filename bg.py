@@ -102,14 +102,15 @@ def background(screen, screen_x, screen_y):
     bg = bg.convert()
 
     background_color = convert_color(config.get("screen", {}).get("background_color"))
+    bg_flag = config.get("screen", {}).get("use_image_color", False)
+    text_config = config.get("text", {})
+    bg_font = pygame.font.Font(text_config.get("bg_font"),
+                               text_config.get("bg_font_size"))
 
-    bg_font = pygame.font.Font(config.get("text", {}).get("bg_font"),
-                               config.get("text", {}).get("bg_font_size"))
-
-    text_color = convert_color(config.get("text", {}).get("color", "#FFFFFF"))
-    text_shadow_color = convert_color(config.get("text", {}).get("bg_color", "#000000"))
-    text_shadow_offset = config.get("text", {}).get("bg_offset", 48)
-    text_padding = config.get("text", {}).get("padding", 25)
+    text_color = convert_color(text_config.get("color", "#FFFFFF"))
+    text_shadow_color = convert_color(text_config.get("bg_color", "#000000"))
+    text_shadow_offset = text_config.get("bg_offset", 48)
+    text_padding = text_config.get("padding", 25)
     last_sec = -1
 
 
@@ -163,7 +164,6 @@ def background(screen, screen_x, screen_y):
 
     stock_list = []
     for s in config.get("stock_list"):
-        #print(s.get("symbol"), s.get("name"))
         sx = Stock(s.get("symbol"), s.get("name", "unknown"))
         sx.update()
         print("- stock: {}".format(sx))
@@ -181,7 +181,6 @@ def background(screen, screen_x, screen_y):
 
 
     txt_key_list = list(text_json.keys())
-    #txt_key = random.choice(txt_key_list)
     txt_cnt = 0
     txt_key = txt_key_list[txt_cnt]
     text_obj.text_str = text_json[txt_key]
@@ -221,7 +220,7 @@ def background(screen, screen_x, screen_y):
                 for s in stock_list:
                     s.update()
                     text_json[s.symbol] = str(s)
-                    #print("- {}".format(s))
+
 
         if now.timestamp() >= weather_sec:
             weather_sec = now.timestamp() + weather_max_sec   
@@ -236,7 +235,6 @@ def background(screen, screen_x, screen_y):
                 txt_cnt = 0
             text_sec = now.timestamp() + text_max_sec
             text_obj.text_str = ""
-            #txt_key = random.choice(txt_key_list)
             txt_key = txt_key_list[txt_cnt]
             text_obj.text_str = text_json[txt_key]
             redraw_flag = True
@@ -266,8 +264,10 @@ def background(screen, screen_x, screen_y):
                     old_img_y = img_y
                     # store old_img_x & y
                 my_img, img_x, img_y = scale_image(the_img, screen_x, screen_y)
-                #print(my_img.get_at((1,1)))
-                background_color = my_img.get_at((1,1))
+                if bg_flag:
+                    # get a random pixel from first 25 pixels in top left corner
+                    background_color = my_img.get_at((random.randint(1,25), random.randint(1,25)))
+
                 # reset new image timer
                 new_img_flag = False
                 redraw_flag = True
@@ -301,10 +301,8 @@ def background(screen, screen_x, screen_y):
 
             screen.blit(bg, (0, 0))
             pygame.display.flip()
-            #bg0 = bg.copy()
             
             redraw_flag = False
-
 
 
         clock.tick(clock_tick) 
@@ -346,7 +344,7 @@ def background(screen, screen_x, screen_y):
 if __name__ == '__main__':
 
     # reduce error traceback
-    #sys.tracebacklimit = 0
+    sys.tracebacklimit = 0
 
 
     config_file = "config.yaml"

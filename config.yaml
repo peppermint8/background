@@ -3,9 +3,10 @@
 screen:
   window_x: 1000
   window_y: 700
+  # overrrides window_x & y
   full_screen: True
   background_color: "#121212"
-
+  use_image_color: True # Ignore background color
 
 screen_interval_sec: 30
 text_interval_sec: 15
@@ -30,8 +31,8 @@ weather_interval_sec: 1200
 #weather_api_key: get from openweathermap.org
 
 weather_list:
-  - location: 94598,us
-  - location: 85016,us
+  - location: 94720,us  # Berkeley, CA
+  - location: 10010,us  # New York City
 
 
 # every 2 minutes, M-F during stock market hours
@@ -62,3 +63,14 @@ F2:
 F3: 
   name: images 3
   path: i3/*
+
+# for clock.py
+clock:
+  background_color: "#003366"
+  hour_hand_color: "#00FF99"
+  minute_hand_color: "#CCFF33"
+  second_hand_color: "#00FFFF"
+  hour_dot_color: "#996699"
+  minute_dot_color: "#CC99CC"
+  solid_fill: True
+  show_second_hand: True
