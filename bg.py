@@ -47,7 +47,7 @@ def get_img_list(collection):
         img_path = config.get("F1", {}).get("path")
 
     #img_list = glob.glob(os.path.join(img_path))
-
+    print("scanning: {}".format(img_path))
     img_list = []
     for root, dirs, files in os.walk(os.path.dirname(img_path)):
         for img in files:
@@ -266,7 +266,8 @@ def background(screen, screen_x, screen_y):
                     old_img_y = img_y
                     # store old_img_x & y
                 my_img, img_x, img_y = scale_image(the_img, screen_x, screen_y)
-                
+                #print(my_img.get_at((1,1)))
+                background_color = my_img.get_at((1,1))
                 # reset new image timer
                 new_img_flag = False
                 redraw_flag = True
