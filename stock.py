@@ -28,8 +28,17 @@ class Stock():
         timeout = 10
         # need to have good user agent
         headers = {'User-agent': "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"}
-        r = requests.get(url, headers=headers, timeout=timeout)
-        # 403 = forbidden
+
+        try:
+            r = requests.get(url, headers=headers, timeout=timeout)
+            # 403 = forbidden
+            stock_json = json.loads(r.text)
+        except requests.exceptions.RequestException:
+            stock_json = {}
+        except requests.exceptions.Timeout:
+            stock_json = {}
+        except requests.exceptions.TooManyRedirects:
+            stock_json = {}
 
         #print("status: {}".format(r.status_code))
 

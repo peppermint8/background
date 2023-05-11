@@ -3,7 +3,7 @@
 screen:
   window_x: 1000
   window_y: 700
-  # overrrides window_x & y
+  # full_screen: True will overrride window_x & y
   full_screen: True
   background_color: "#121212"
   use_image_color: True # Ignore background color

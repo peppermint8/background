@@ -28,9 +28,18 @@ class Weather():
             #https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
         
             url = "https://api.openweathermap.org/data/2.5/weather?zip={z}&APPID={a}".format(z=self.zipcode, a=self.api_key)
-            r = requests.get(url, timeout=10)
+            try:
+                r = requests.get(url, timeout=10)
+                weather_json = json.loads(r.text)
+                
+            except requests.exceptions.RequestException:
+                weather_json = {}
+            except requests.exceptions.Timeout:
+                weather_json = {}
+            except requests.exceptions.TooManyRedirects:
+                weather_json = {}
 
-            weather_json = json.loads(r.text)
+
             self.area = weather_json.get("name", "unknown")
             #self.weather = weather_json['weather'][0]['main']
             self.weather = weather_json['weather'][0]['description']
@@ -38,9 +47,9 @@ class Weather():
             self.icon = weather_json['weather'][0]['icon']
 
             if self.temp_unit == "'F":
-                self.temp = self.temp_format.format(self.k2f(weather_json['main']['temp']))
+                self.temp = self.temp_format.format(k2f(weather_json['main']['temp']))
             elif self.temp_unit == "'C": 
-                self.temp = self.temp_format.format(self.k2c(weather_json['main']['temp']))
+                self.temp = self.temp_format.format(k2c(weather_json['main']['temp']))
             else:
                 # Kevlin
                 self.temp = self.temp_format.format(weather_json['main']['temp'])
@@ -61,19 +70,23 @@ class Weather():
         # pressure, humidity, temp_min, temp_max, wind.speed, degree
         #print(json.dumps(weather_json, indent=2))
 
-    def k2f(self, kelvin_temp):
-        """k2felvin to fahrenheit"""
-        return (kelvin_temp - 273.15) * 9 / 5 + 32
     
-    def k2c(self, kelvin_temp):
-        """k2felvin to celcius"""
-        return kelvin_temp - 273.15
-
+    
     def __str__(self):
 
         weather_str = "{}: {}, {}{}".format(self.area, self.weather, self.temp, self.temp_unit)
         return weather_str
-        
+
+
+def k2f(kelvin_temp):
+    """k2felvin to fahrenheit"""
+    return (kelvin_temp - 273.15) * 9 / 5 + 32
+    
+
+def k2c(kelvin_temp):
+    """k2felvin to celcius"""
+    return kelvin_temp - 273.15
+
 
 
 if __name__ == '__main__':

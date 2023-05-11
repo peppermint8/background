@@ -10,6 +10,7 @@ import os
 import sys
 import pygame
 import random
+import imghdr
 
 def get_wh(iw, ih, max_x, max_y):
     """scale image size"""
@@ -19,18 +20,7 @@ def get_wh(iw, ih, max_x, max_y):
     
     w1 = new_w / max_x
     h1 = new_h / max_y
-    
-    """
-    if iw == 1920 and ih == 1200:
-        new_w = max_x
-        new_h = max_y
-    elif iw == 2560 and ih == 1440:
-        new_w = max_x
-        new_h = max_y
-    elif iw == 2048 and ih == 1163:
-        new_w = max_x
-        new_h = max_y
-    """
+   
     if w1 > h1:
         new_w = new_w // w1
         new_h = new_h // w1
@@ -60,8 +50,9 @@ def test_img(img_file):
     test_flag = False
 
     if os.path.isfile(img_file):
-        i = img_file.lower()
-        if i.endswith(".jpg") or i.endswith(".png") or i.endswith(".jpeg") or i.endswith(".bmp") or i.endswith(".gif"):
+        # imghdr deprecated python 3.11?
+        hdr = imghdr.what(img_file)
+        if hdr:
             test_flag = True
 
 
@@ -69,7 +60,7 @@ def test_img(img_file):
 
 
 def scale_image(img, max_x, max_y):
-
+    """scale image to fit to the screen, randomly horiz flip"""
     my_img = None
     img_x = img_y = -1
     try:

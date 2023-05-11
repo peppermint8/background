@@ -8,9 +8,14 @@ Background screensaver
 
 To do:
 - long text scrolling
-
+- custom json file (key: str) to add to text_json
 
 2023-05-08 - v 1.0.0
+2023-05-10 - v 1.1.0
+- fixed bug with stock market crawling
+- fixed bug if the image is not a real image
+- added try-except blocks for stock & weather web calls
+
 
 keys:
 X = next text 
@@ -23,7 +28,7 @@ import sys
 import datetime
 import os
 import yaml
-#import glob
+import glob
 import random
 import pygame
 from pygame.locals import *
@@ -33,7 +38,7 @@ from stock import Stock
 from weather import Weather
 from text_img import TxtImg
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 
 
@@ -46,12 +51,15 @@ def get_img_list(collection):
     if not img_path:
         img_path = config.get("F1", {}).get("path")
 
-    #img_list = glob.glob(os.path.join(img_path))
     print("scanning: {}".format(img_path))
+    img_list = glob.glob(os.path.join(img_path))
+    """
+    # error recursive scan
     img_list = []
     for root, dirs, files in os.walk(os.path.dirname(img_path)):
         for img in files:
             img_list.append(os.path.join(root, img))
+    """
 
     if not img_list:
         collection = "F1"
@@ -216,11 +224,12 @@ def background(screen, screen_x, screen_y):
         if now.timestamp() >= stock_sec:
 
             if now.weekday() < 5 and stock_open_hr <= now.hour <= stock_close_hr:
+            
                 print("Stock market updating ...")
                 for s in stock_list:
                     s.update()
                     text_json[s.symbol] = str(s)
-
+                stock_sec = now.timestamp() + stock_max_sec 
 
         if now.timestamp() >= weather_sec:
             weather_sec = now.timestamp() + weather_max_sec   
@@ -256,7 +265,6 @@ def background(screen, screen_x, screen_y):
             screen_sec = now.timestamp() + screen_max_sec
             the_img = random.choice(img_list)
             if test_img(the_img):
-
                 
                 if my_img:
                     old_img = my_img
@@ -264,6 +272,10 @@ def background(screen, screen_x, screen_y):
                     old_img_y = img_y
                     # store old_img_x & y
                 my_img, img_x, img_y = scale_image(the_img, screen_x, screen_y)
+                if not my_img:
+                    print("- error with image: {}".format(the_img))
+                    my_img = old_img
+
                 if bg_flag:
                     # get a random pixel from first 25 pixels in top left corner
                     background_color = my_img.get_at((random.randint(1,25), random.randint(1,25)))
@@ -274,7 +286,7 @@ def background(screen, screen_x, screen_y):
                 if fade_speed > 0:
                     fade_in = 0
             else:
-                print("- {} is not a file".format(the_img))
+                print("- {} is not an image".format(the_img))
         
         if redraw_flag:
 
@@ -284,10 +296,11 @@ def background(screen, screen_x, screen_y):
                 old_img.set_alpha(255 - fade_in)
                 bg.blit(old_img, (old_img_x, old_img_y))
 
-            if fade_in <= 255:
-                my_img.set_alpha(fade_in)
+            if my_img:
+                if fade_in <= 255:
+                    my_img.set_alpha(fade_in)
             
-            bg.blit(my_img, (img_x, img_y))
+                bg.blit(my_img, (img_x, img_y))
             
 
             # time textbox
