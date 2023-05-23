@@ -26,33 +26,35 @@ class Weather():
 
             # v 3.0 - might cost money
             #https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
-        
+            weather_json = {}
             url = "https://api.openweathermap.org/data/2.5/weather?zip={z}&APPID={a}".format(z=self.zipcode, a=self.api_key)
             try:
                 r = requests.get(url, timeout=10)
                 weather_json = json.loads(r.text)
                 
             except requests.exceptions.RequestException:
-                weather_json = {}
+                print("Weather - Request exception")
             except requests.exceptions.Timeout:
-                weather_json = {}
+                print("Weather - Request timeout")
             except requests.exceptions.TooManyRedirects:
-                weather_json = {}
+                print("Weather - Request too many redirects")
 
 
             self.area = weather_json.get("name", "unknown")
-            #self.weather = weather_json['weather'][0]['main']
-            self.weather = weather_json['weather'][0]['description']
-            
-            self.icon = weather_json['weather'][0]['icon']
+            # self.weather = weather_json['weather'][0]['description'] = KeyError sometimes
+            if self.area:
+                #self.weather = weather_json['weather'][0]['main']
+                self.weather = weather_json['weather'][0]['description']
+                
+                self.icon = weather_json['weather'][0]['icon']
 
-            if self.temp_unit == "'F":
-                self.temp = self.temp_format.format(k2f(weather_json['main']['temp']))
-            elif self.temp_unit == "'C": 
-                self.temp = self.temp_format.format(k2c(weather_json['main']['temp']))
-            else:
-                # Kevlin
-                self.temp = self.temp_format.format(weather_json['main']['temp'])
+                if self.temp_unit == "'F":
+                    self.temp = self.temp_format.format(k2f(weather_json['main']['temp']))
+                elif self.temp_unit == "'C": 
+                    self.temp = self.temp_format.format(k2c(weather_json['main']['temp']))
+                else:
+                    # Kevlin
+                    self.temp = self.temp_format.format(weather_json['main']['temp'])
 
         # icon meanings
         #https://openweathermap.org/weather-conditions

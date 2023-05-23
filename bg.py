@@ -9,6 +9,7 @@ Background screensaver
 To do:
 - long text scrolling
 - custom json file (key: str) to add to text_json
+- bug - "weather" key not found?
 
 2023-05-08 - v 1.0.0
 2023-05-10 - v 1.1.0
@@ -225,7 +226,7 @@ def background(screen, screen_x, screen_y):
 
             if now.weekday() < 5 and stock_open_hr <= now.hour <= stock_close_hr:
             
-                print("Stock market updating ...")
+                #print("Stock market updating ...")
                 for s in stock_list:
                     s.update()
                     text_json[s.symbol] = str(s)
@@ -357,7 +358,7 @@ def background(screen, screen_x, screen_y):
 if __name__ == '__main__':
 
     # reduce error traceback
-    sys.tracebacklimit = 0
+    #sys.tracebacklimit = 0
 
 
     config_file = "config.yaml"

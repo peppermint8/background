@@ -28,39 +28,42 @@ class Stock():
         timeout = 10
         # need to have good user agent
         headers = {'User-agent': "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"}
-
+        stock_json = {}
         try:
             r = requests.get(url, headers=headers, timeout=timeout)
             # 403 = forbidden
             stock_json = json.loads(r.text)
         except requests.exceptions.RequestException:
-            stock_json = {}
+            print("Stock - Request exception")
+
         except requests.exceptions.Timeout:
-            stock_json = {}
+            print("Stock - Request timeout")
         except requests.exceptions.TooManyRedirects:
-            stock_json = {}
+            print("Stock - Request too many redirects")
 
         #print("status: {}".format(r.status_code))
 
-        stock_json = json.loads(r.text)
-        price_result = stock_json.get('chart', {}).get('result', [])
-
-        if price_result:
-            price = price_result[0].get("meta", {}).get("regularMarketPrice", 0.0)
-            prev_close = price_result[0].get("meta", {}).get("chartPreviousClose", 0.0)
-            if prev_close > 0:
-                self.prev_close = prev_close
+        #stock_json = json.loads(r.text)
+        if stock_json.get("chart"):
                 
-            if price > 0:
-                self.price = price
-            if price > self.high_price:
-                self.high_price = price
-            if price < self.low_price:
-                self.low_price = price
+            price_result = stock_json.get('chart', {}).get('result', [])
 
-            self.diff = self.price - self.prev_close
+            if price_result:
+                price = price_result[0].get("meta", {}).get("regularMarketPrice", 0.0)
+                prev_close = price_result[0].get("meta", {}).get("chartPreviousClose", 0.0)
+                if prev_close > 0:
+                    self.prev_close = prev_close
+                    
+                if price > 0:
+                    self.price = price
+                if price > self.high_price:
+                    self.high_price = price
+                if price < self.low_price:
+                    self.low_price = price
 
-        #print(json.dumps(stock_json, indent=2))
+                self.diff = self.price - self.prev_close
+
+            #print(json.dumps(stock_json, indent=2))
 
     def __str__(self):
         plus_str = "+" if float(self.diff) > 0.0 else ""
