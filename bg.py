@@ -16,7 +16,9 @@ To do:
 - fixed bug with stock market crawling
 - fixed bug if the image is not a real image
 - added try-except blocks for stock & weather web calls
-
+2023-06-13 - v 1.2.0
+- changed to use recursive scan for folders instead of glob
+- fixed bug if default folder (F1) does not exist - return error
 
 keys:
 X = next text 
@@ -39,8 +41,7 @@ from stock import Stock
 from weather import Weather
 from text_img import TxtImg
 
-VERSION = "1.1.0"
-
+VERSION = "1.2.0"
 
 
 
@@ -53,14 +54,21 @@ def get_img_list(collection):
         img_path = config.get("F1", {}).get("path")
 
     print("scanning: {}".format(img_path))
-    img_list = glob.glob(os.path.join(img_path))
-    """
+
+    #img_list = glob.glob(os.path.join(img_path))
+    
+
+    
     # error recursive scan
     img_list = []
     for root, dirs, files in os.walk(os.path.dirname(img_path)):
         for img in files:
             img_list.append(os.path.join(root, img))
-    """
+    
+
+    if not img_list and collection == "F1":
+        print(f"error - no images found in default folder: {img_path}")
+        sys.exit(1)
 
     if not img_list:
         collection = "F1"
@@ -358,8 +366,9 @@ def background(screen, screen_x, screen_y):
 if __name__ == '__main__':
 
     # reduce error traceback
-    #sys.tracebacklimit = 0
+    sys.tracebacklimit = 0
 
+    print(f"Background rotator - {VERSION}")
 
     config_file = "config.yaml"
     if len(sys.argv) > 1:
