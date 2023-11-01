@@ -30,7 +30,8 @@ class Weather():
             url = "https://api.openweathermap.org/data/2.5/weather?zip={z}&APPID={a}".format(z=self.zipcode, a=self.api_key)
             try:
                 r = requests.get(url, timeout=10)
-                weather_json = json.loads(r.text)
+                if r:
+                    weather_json = json.loads(r.text)
                 
             except requests.exceptions.RequestException:
                 print("Weather - Request exception")
