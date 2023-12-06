@@ -213,6 +213,7 @@ def background(screen, screen_x, screen_y):
 
     new_img_flag = True
     redraw_flag = True
+    stretch_flag = False
     done = False
 
 
@@ -300,7 +301,9 @@ def background(screen, screen_x, screen_y):
         if redraw_flag:
 
             bg.fill(background_color)
+
             
+
             if old_img and fade_speed > 0:
                 old_img.set_alpha(255 - fade_in)
                 bg.blit(old_img, (old_img_x, old_img_y))
@@ -310,7 +313,22 @@ def background(screen, screen_x, screen_y):
                     my_img.set_alpha(fade_in)
             
                 bg.blit(my_img, (img_x, img_y))
+
+            if img_x > 10:
+                if stretch_flag:
+                    iw, ih = my_img.get_rect().size
+                    for y0 in range(0, screen_y):
+                        
+                        #c = my_img.get_at((1, y0))
+                        c = bg.get_at((int(img_x), y0))
+                        #print(img_x, y0, c)
+                        #c = (int(y0/screen_y * 255),int(y0/screen_y * 255),int(y0/screen_y * 255), 255)
+                        pygame.draw.lines(bg, c, False, [(0, y0), (img_x, y0)], 1)
+
+                        c = bg.get_at((int(img_x)+iw-1, y0))
+                        pygame.draw.lines(bg, c, False, [(img_x+iw, y0), (screen_x, y0)], 1)
             
+
 
             # time textbox
             time_obj.render_text_shadow()
@@ -341,6 +359,10 @@ def background(screen, screen_x, screen_y):
                     text_sec = 0
                     redraw_flag = True
 
+                if event.key == K_s:
+                    stretch_flag = not stretch_flag
+
+
                 if event.key == K_SPACE:
                     new_img_flag = True
 
@@ -366,7 +388,7 @@ def background(screen, screen_x, screen_y):
 if __name__ == '__main__':
 
     # reduce error traceback
-    sys.tracebacklimit = 0
+    #sys.tracebacklimit = 0
 
     print(f"Background rotator - {VERSION}")
 

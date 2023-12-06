@@ -40,8 +40,12 @@ class Weather():
             except requests.exceptions.TooManyRedirects:
                 print("Weather - Request too many redirects")
 
-
+            
+            if not weather_json:
+                return
+            
             self.area = weather_json.get("name", "unknown")
+
             # self.weather = weather_json['weather'][0]['description'] = KeyError sometimes
             if self.area:
                 #self.weather = weather_json['weather'][0]['main']
