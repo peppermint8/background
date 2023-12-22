@@ -9,7 +9,7 @@ Background screensaver
 To do:
 - long text scrolling
 - custom json file (key: str) to add to text_json
-- bug - "weather" key not found?
+
 
 2023-05-08 - v 1.0.0
 2023-05-10 - v 1.1.0
@@ -19,9 +19,12 @@ To do:
 2023-06-13 - v 1.2.0
 - changed to use recursive scan for folders instead of glob
 - fixed bug if default folder (F1) does not exist - return error
+2023-12-21 - v 1.3.0
+- added dust effects
 
 keys:
 X = next text 
+d = turn dust on/off if dust setup
 SPACE = next image
 ESC = exit
 
@@ -41,9 +44,83 @@ from stock import Stock
 from weather import Weather
 from text_img import TxtImg
 
-VERSION = "1.2.0"
+
+VERSION = "1.3.0"
 
 
+class Dust():
+    """class to represent floating dust on the screen"""
+    dust_img = None
+    x = y = 0
+    max_x = max_y = 0
+
+    xv = yv = fv = 0
+    xvv = yvv = 1.0
+
+    alive_flag = False
+
+    def __init__(self, dust_img, max_x, max_y):
+        # dust not faded out of existance yet
+        self.alive_flag = True
+
+        self.dust_img = dust_img
+        # scale dust image, assume aspect ratio = 1.0
+        xsize = ysize = random.randint(2,20)
+        #ysize = random.randint(2,30)
+        self.dust_img = pygame.transform.scale(self.dust_img, (xsize, ysize))        
+
+        # random x & y velocity
+        self.xv = random.randint(-7, 7)
+        self.yv = random.randint(-7, 7)
+
+        # minor changes to xv & yv so movement isn't so linear
+        self.xvv = random.randint(-33, 33)/100
+        self.yvv = random.randint(-33, 33)/100
+
+        # staring alpha
+        self.fade = random.randint(0, 25)
+        # fade in string
+        self.fv = random.randint(1, 20)
+        
+
+        # x & y starting coordinates
+        self.max_x = max_x
+        self.max_y = max_y
+        self.x = random.randint(0, max_x)
+        self.y = random.randint(0, max_y)
+
+        #img.get_width(), img.get_height()
+
+
+    def float(self):
+        """change alpha, move x & y""""
+        if self.alive_flag:
+            self.fade += self.fv
+            
+            if self.fade < 5:
+                self.alive_flag = False
+            elif self.fade >= 160: # 255
+                self.fv = -self.fv
+            
+            if self.alive_flag:
+                self.dust_img.set_alpha(self.fade)
+
+        if self.alive_flag:
+            self.x += int(self.xv)
+            self.y += int(self.yv)
+
+            if self.x > self.max_x:
+                self.alive_flag = False
+            if self.x < 0:
+                self.alive_flag = False
+            if self.y > self.max_y:
+                self.alive_flag = False
+            if self.y < 0:
+                self.alive_flag = False
+
+            self.xv = self.xv + self.xvv
+            self.xv = self.xv + self.yvv
+        
 
 def get_img_list(collection):
     """get the files in the path"""
@@ -56,8 +133,6 @@ def get_img_list(collection):
     print("scanning: {}".format(img_path))
 
     #img_list = glob.glob(os.path.join(img_path))
-    
-
     
     # error recursive scan
     img_list = []
@@ -82,6 +157,7 @@ def get_img_list(collection):
 
 def init_screen(full_screen_flag):
     """initalize screen"""
+
     pygame.init()
 
     # full screen
@@ -105,7 +181,6 @@ def init_screen(full_screen_flag):
     pygame.display.set_allow_screensaver(False)
 
     return screen, screen_x, screen_y
-
 
 
 
@@ -210,13 +285,39 @@ def background(screen, screen_x, screen_y):
 
     old_img = None
     my_img = None
+    img_x = 0
 
     new_img_flag = True
     redraw_flag = True
     stretch_flag = False
     done = False
 
+    # dust
+    ixx = config.get("dust_image")
+    dust_flag = False
+    dust_list = []
+    max_dust = config.get("max_dust", 0)
+    if ixx:
+        ixx_img = pygame.image.load(ixx).convert_alpha()
 
+        clr = pygame.Color(255,255,255)
+        for x in range(ixx_img.get_width()):
+            for y in range(ixx_img.get_height()):
+                clr.a = ixx_img.get_at((x, y)).a  # Preserve the alpha value.
+                ixx_img.set_at((x, y), clr)  # Set the color of the pixel.
+
+
+        
+        
+        dcnt = 0
+        for d in range(1, max_dust):
+            dust = Dust(ixx_img, screen_x, screen_y)
+            dcnt += 1
+            dust.id = f"dust-{dcnt}"
+            dust_list.append(dust)
+        dust_flag = True
+    
+    
     while not done:
             
 
@@ -338,6 +439,26 @@ def background(screen, screen_x, screen_y):
             text_obj.render_text_shadow()
             text_obj.render_text()
   
+            if dust_flag:
+                #print("dddd - {}".format(len(dust_list)))
+                for d in dust_list:
+                    d.float()
+                    #print(d.id, d.x, d.y) #, screen_x, screen_y)
+                    if d.alive_flag:
+                        bg.blit(d.dust_img, (d.x, d.y))
+                    else:
+                        dust_list.remove(d)
+
+                if len(dust_list) < max_dust:
+                    for d in range(1, max_dust - len(dust_list)):
+                        if random.random() > 0.85:
+                        
+                            dcnt += 1
+                            dust = Dust(ixx_img, screen_x, screen_y)
+                            dust.id = f"dust-{dcnt}"
+                            dust_list.append(dust)
+
+
 
             screen.blit(bg, (0, 0))
             pygame.display.flip()
@@ -361,6 +482,10 @@ def background(screen, screen_x, screen_y):
 
                 if event.key == K_s:
                     stretch_flag = not stretch_flag
+
+                if event.key == K_d:
+                    dust_flag = not dust_flag
+
 
 
                 if event.key == K_SPACE:
@@ -396,19 +521,19 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         config_file = sys.argv[1]
     
-    print("Loading config: {}".format(config_file))
+    print(f"Loading config: {config_file}")
     
 
     if not os.path.isfile(config_file):
-        print("Cannot find config: {}".format(config_file))
-        sys.exit(1)
+        print(f"Cannot find config: {config_file}")
+        sys.exit(2)
     
     with open(config_file, "r", encoding="utf-8") as fh:
         try:
             config = yaml.load(fh, Loader=yaml.FullLoader)
         except yaml.scanner.ScannerError as err: 
             print("Config file error: {}".format(err))
-            sys.exit(1)
+            sys.exit(2)
 
     # full screen option
     screen, screen_x, screen_y = init_screen(config.get("screen", {}).get("full_screen", False))

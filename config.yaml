@@ -11,6 +11,8 @@ screen:
 screen_interval_sec: 30
 text_interval_sec: 15
 background_fade_speed: 10
+dust_image: resources/circle.png
+max_dust: 20
 
 text:
   bg_font: resources/LifeSavers-Regular.ttf

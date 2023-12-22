@@ -44,6 +44,7 @@ def convert_color(color_str):
 
     return clr
 
+
 def test_img(img_file):
     """test if the file 'smells' like an image"""
 
