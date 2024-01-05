@@ -93,7 +93,7 @@ class Dust():
 
 
     def float(self):
-        """change alpha, move x & y""""
+        """change alpha, move x & y"""
         if self.alive_flag:
             self.fade += self.fv
             
