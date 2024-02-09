@@ -21,12 +21,15 @@ To do:
 - fixed bug if default folder (F1) does not exist - return error
 2023-12-21 - v 1.3.0
 - added dust effects
+2023-02-08 - v 1.4.0
+- added strech for images wider than taller
 
 keys:
 X = next text 
 d = turn dust on/off if dust setup
 SPACE = next image
 ESC = exit
+F1..F5 change image set (according to config file)
 
 """
 
@@ -318,6 +321,7 @@ def background(screen, screen_x, screen_y):
         dust_flag = True
     
     
+    
     while not done:
             
 
@@ -402,9 +406,7 @@ def background(screen, screen_x, screen_y):
         if redraw_flag:
 
             bg.fill(background_color)
-
             
-
             if old_img and fade_speed > 0:
                 old_img.set_alpha(255 - fade_in)
                 bg.blit(old_img, (old_img_x, old_img_y))
@@ -415,20 +417,32 @@ def background(screen, screen_x, screen_y):
             
                 bg.blit(my_img, (img_x, img_y))
 
-            if img_x > 10:
-                if stretch_flag:
-                    iw, ih = my_img.get_rect().size
+            if stretch_flag:
+                iw, ih = my_img.get_rect().size
+                if img_x > 10:
+
                     for y0 in range(0, screen_y):
-                        
-                        #c = my_img.get_at((1, y0))
+
                         c = bg.get_at((int(img_x), y0))
-                        #print(img_x, y0, c)
-                        #c = (int(y0/screen_y * 255),int(y0/screen_y * 255),int(y0/screen_y * 255), 255)
                         pygame.draw.lines(bg, c, False, [(0, y0), (img_x, y0)], 1)
 
                         c = bg.get_at((int(img_x)+iw-1, y0))
                         pygame.draw.lines(bg, c, False, [(img_x+iw, y0), (screen_x, y0)], 1)
-            
+
+                        #for mx in range(int(img_x), screen_x):
+                        #    im = random.randint(0,3)
+                        #    c = bg.get_at((int(img_x+im)+iw-1, y0))
+                        #    bg.set_at((mx+iw, y0), c)
+
+
+                elif img_y > 10:
+                
+                    for x0 in range(0, screen_x):
+                        c = bg.get_at((x0, int(img_y)))
+                        pygame.draw.lines(bg, c, False, [(x0, 0), (x0, img_y)], 1)
+                        c = bg.get_at((x0, int(img_y) + ih - 1))
+                        pygame.draw.lines(bg, c, False, [(x0, img_y+ih), (x0, screen_y)], 1)
+
 
 
             # time textbox
@@ -492,20 +506,54 @@ def background(screen, screen_x, screen_y):
                     new_img_flag = True
 
         all_keys = pygame.key.get_pressed()
+        
+            
+        if all_keys[pygame.K_F1]:
+            if all_keys[pygame.K_LSHIFT]:
+                img_list = get_img_list("SF1")
+            else:
+                img_list = get_img_list("F1")
+            new_img_flag = True
+
+        if all_keys[pygame.K_F2]:
+            if all_keys[pygame.K_LSHIFT]:
+                img_list = get_img_list("SF2")
+            else:
+                img_list = get_img_list("F2")
+            new_img_flag = True
+        if all_keys[pygame.K_F3]:
+            if all_keys[pygame.K_LSHIFT]:
+                img_list = get_img_list("SF3")
+            else:
+                img_list = get_img_list("F3")
+            new_img_flag = True
+        if all_keys[pygame.K_F4]:
+            if all_keys[pygame.K_LSHIFT]:
+                img_list = get_img_list("SF4")
+            else:
+                img_list = get_img_list("F4")
+            new_img_flag = True
+        if all_keys[pygame.K_F5]:
+            if all_keys[pygame.K_LSHIFT]:
+                img_list = get_img_list("SF5")
+            else:
+                img_list = get_img_list("F5")
+            new_img_flag = True                                    
+
         if all_keys[pygame.K_F1] and all_keys[pygame.K_LSHIFT]:
-            img_list = get_img_list("F1")
+            img_list = get_img_list("SF1")
             new_img_flag = True
         if all_keys[pygame.K_F2] and all_keys[pygame.K_LSHIFT]:
-            img_list = get_img_list("F2")
+            img_list = get_img_list("SF2")
             new_img_flag = True
         if all_keys[pygame.K_F3] and all_keys[pygame.K_LSHIFT]:
-            img_list = get_img_list("F3")
+            img_list = get_img_list("SF3")
             new_img_flag = True
         if all_keys[pygame.K_F4] and all_keys[pygame.K_LSHIFT]:
-            img_list = get_img_list("F4")
+            img_list = get_img_list("SF4")
             new_img_flag = True
         if all_keys[pygame.K_F5] and all_keys[pygame.K_LSHIFT]:
-            img_list = get_img_list("F5")
+            img_list = get_img_list("SF5")
             new_img_flag = True                                    
 
 
