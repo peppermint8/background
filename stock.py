@@ -40,7 +40,9 @@ class Stock():
             print("Stock - Request timeout")
         except requests.exceptions.TooManyRedirects:
             print("Stock - Request too many redirects")
-
+        except json.decoder.JSONDecodeError:
+            print("Stock - json decode error")
+            
         #print("status: {}".format(r.status_code))
 
         #stock_json = json.loads(r.text)

@@ -4,8 +4,8 @@ screen:
   window_x: 1000
   window_y: 700
   # full_screen: True will overrride window_x & y
-  full_screen: True
-  background_color: "#121212"
+  #full_screen: True
+  background_color: "#121212" # eigengrau
   use_image_color: True # Ignore background color
 
 screen_interval_sec: 30
@@ -13,6 +13,10 @@ text_interval_sec: 15
 background_fade_speed: 10
 dust_image: resources/circle.png
 max_dust: 20
+
+# hourly bell sound, tolls only once
+bell_sound: resources/bell.mp3
+bell_toll_list: [9,10,11,12,13,14,15,16,17,18,19,20,21,222,23] # 24 hour format
 
 text:
   bg_font: resources/LifeSavers-Regular.ttf
@@ -23,6 +27,9 @@ text:
   padding: 25
 
 text_msg_location: top-right
+
+
+  
 
 date:
   datetime_format: "%a %b %-d, %I:%M %p"

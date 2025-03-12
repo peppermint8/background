@@ -320,12 +320,41 @@ def background(screen, screen_x, screen_y):
             dust_list.append(dust)
         dust_flag = True
     
-    
-    
+    # bell chime hourly
+    bell_sound_file = config.get("bell_sound")
+    toll_list = config.get("bell_toll_list", [])
+    bell_sound = None 
+    bell_flag = False 
+    if bell_sound_file:
+        bell_sound = pygame.mixer.Sound(bell_sound_file)
+    last_toll_sec = 0 # when did the bell toll last time in seconds
+
     while not done:
             
 
         now = datetime.datetime.now()
+
+        if bell_sound:
+            if now.hour in toll_list:
+                
+                if now.minute == 0 and now.second == 0:
+                    bell_flag = True
+
+            # test every 10 seconds
+            #if now.second % 10 == 0:
+            #    bell_flag = True
+
+
+            if bell_flag:
+            
+                bell_flag = False
+                if now.second != last_toll_sec:
+                    #print("bell")           
+                    pygame.mixer.Sound.play(bell_sound) 
+
+            last_toll_sec = now.second
+
+
 
         if fade_in <= 255 and fade_speed > 0:
             fade_in += fade_speed
@@ -388,7 +417,7 @@ def background(screen, screen_x, screen_y):
                     # store old_img_x & y
                 my_img, img_x, img_y = scale_image(the_img, screen_x, screen_y)
                 if not my_img:
-                    print("- error with image: {}".format(the_img))
+                    print(f"- error with image: {the_img}")
                     my_img = old_img
 
                 if bg_flag:
@@ -401,7 +430,7 @@ def background(screen, screen_x, screen_y):
                 if fade_speed > 0:
                     fade_in = 0
             else:
-                print("- {} is not an image".format(the_img))
+                print(f"- {the_img} is not an image")
         
         if redraw_flag:
 
